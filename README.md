@@ -1,10 +1,10 @@
 # Abbott Deep Learning Algebra
 
-This repository packages a Lean 4 categorical formalization and executable reference
+This repository packages a Lean 4 categorical bridge formalization and executable reference
 surface for Vincent Abbott and Gioele Zardini's paper *Weaves, Wires, and
 Morphisms: Formalizing and Implementing the Algebra of Deep Learning*.
 
-It now includes the categorical bridge modules, categorical Fox/Yoneda theorem
+It includes the categorical bridge modules, categorical Fox/Yoneda theorem
 surfaces, and categorical example refinements, while retaining the finite witness
 layer as the specialization and executable regression surface.
 
@@ -52,8 +52,8 @@ layer as the specialization and executable regression surface.
 - explicit axis-stride and array-broadcasted structures
 - categorical product, stride, array, and broadcast categories
 - categorical interpretation layer into product and broadcast semantics
-- categorical Fox projection/free-construction theorems
-- categorical Yoneda sliding theorems using categorical composition
+- categorical Fox projection/free-construction theorems in the semantic `Type` category
+- categorical Yoneda sliding theorems in the semantic `Type` category
 - categorical convolution and attention example refinements back to the finite layer
 - finite Fox projection/free-construction laws
 - deterministic naturality
@@ -63,6 +63,9 @@ layer as the specialization and executable regression surface.
 
 ## Honest Boundaries
 
+- The Fox/Yoneda categorical theorem files are stated in the semantic category `Type`
+  over finite tuple objects. They are not yet stated as equalities internal to the
+  `BroadcastCat` path category itself.
 - The executor is a NumPy reference runtime.
 - When `torch` is installed, results may be wrapped as torch tensors, but this
   repository does not yet claim native torch kernel execution.
