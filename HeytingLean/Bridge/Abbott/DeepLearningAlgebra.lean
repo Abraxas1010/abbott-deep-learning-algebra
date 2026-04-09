@@ -5,6 +5,7 @@ import HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Remapping
 import HeytingLean.Bridge.Abbott.DeepLearningAlgebra.AxisStride
 import HeytingLean.Bridge.Abbott.DeepLearningAlgebra.ArrayBroadcasted
 import HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Broadcasting
+import HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Categorical
 import HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Laws
 import HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Yoneda
 import HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Examples.Convolution

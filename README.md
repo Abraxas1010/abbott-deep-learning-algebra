@@ -1,11 +1,12 @@
 # Abbott Deep Learning Algebra
 
-This repository packages a finite Lean 4 formalization and executable reference
+This repository packages a Lean 4 categorical formalization and executable reference
 surface for Vincent Abbott and Gioele Zardini's paper *Weaves, Wires, and
 Morphisms: Formalizing and Implementing the Algebra of Deep Learning*.
 
-It is a finite witness package, not a claim of having completed the paper's full
-abstract categorical theory.
+It now includes the categorical bridge modules, categorical Fox/Yoneda theorem
+surfaces, and categorical example refinements, while retaining the finite witness
+layer as the specialization and executable regression surface.
 
 ## What This Repository Contains
 
@@ -14,8 +15,11 @@ abstract categorical theory.
   - product-category wiring
   - remapping algebra
   - axis-stride and array-broadcasted structures
-  - finite Fox-style laws
-  - concrete natural-reindexing and broadcast-level Yoneda witnesses
+  - categorical product / stride / array / broadcast layers
+  - categorical interpretation functors
+  - categorical Fox and Yoneda theorem surfaces
+  - categorical convolution and attention refinements
+  - finite Fox-style laws and concrete natural-reindexing witnesses
 - Python reference execution for:
   - convolution
   - self-attention
@@ -46,6 +50,11 @@ abstract categorical theory.
   - `flatRemapping`
   - theorem-level roundtrip/coherence witnesses
 - explicit axis-stride and array-broadcasted structures
+- categorical product, stride, array, and broadcast categories
+- categorical interpretation layer into product and broadcast semantics
+- categorical Fox projection/free-construction theorems
+- categorical Yoneda sliding theorems using categorical composition
+- categorical convolution and attention example refinements back to the finite layer
 - finite Fox projection/free-construction laws
 - deterministic naturality
 - concrete `NaturalReindexing` witnesses
@@ -54,9 +63,6 @@ abstract categorical theory.
 
 ## Honest Boundaries
 
-- This does not claim the paper's full abstract categorical theory.
-- The Yoneda result here is a finite broadcast-witness surface, not the full
-  general theorem family as an abstract category package.
 - The executor is a NumPy reference runtime.
 - When `torch` is installed, results may be wrapped as torch tensors, but this
   repository does not yet claim native torch kernel execution.
@@ -82,6 +88,12 @@ domain coordinates from codomain coordinates.
 - `HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Remapping`
 - `HeytingLean.Bridge.Abbott.DeepLearningAlgebra.AxisStride`
 - `HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Broadcasting`
+- `HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Categorical`
+- `HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Categorical.Interpretation`
+- `HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Categorical.Fox`
+- `HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Categorical.Yoneda`
+- `HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Categorical.Examples.Convolution`
+- `HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Categorical.Examples.Attention`
 - `HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Laws`
 - `HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Yoneda`
 - `HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Examples.Convolution`
