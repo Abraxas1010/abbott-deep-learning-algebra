@@ -16,7 +16,7 @@ We humbly thank the collective intelligence of humanity for providing the techno
 
 # Abbott Deep Learning Algebra — Finite Lean 4 Formalization and Executable Reference Package
 
-This repository packages a standalone Lean 4, Python, and TypeScript surface for the paper *Weaves, Wires, and Morphisms: Formalizing and Implementing the Algebra of Deep Learning* (Abbott, Zardini, 2026). It focuses on the paper's finite, implementation-facing core: constructed terms, product/remapping structure, axis-stride and array-broadcasted categories, finite Fox-style projection/construction laws, deterministic naturality, a deterministic Yoneda-sliding specialization, and explicit reference execution for convolution and multi-head attention.
+This repository packages a standalone Lean 4, Python, and TypeScript surface for the paper *Weaves, Wires, and Morphisms: Formalizing and Implementing the Algebra of Deep Learning* (Abbott, Zardini, 2026). It focuses on the paper's finite, implementation-facing core: constructed terms, product/remapping structure, direct-sum and flat remapping algebra, axis-stride and array-broadcasted categories, finite Fox-style projection/construction laws, deterministic naturality, a concrete natural-reindexing Yoneda witness, and explicit reference execution for convolution and multi-head attention.
 
 ## What Is This?
 
@@ -35,9 +35,10 @@ A researcher package for independently rebuilding the Abbott bridge outside the 
 ## Current Scope
 
 - Finite constructed-term system and product-category scaffolding.
+- Finite remapping algebra with direct sums, segmented flattening, and flat remappings.
 - Finite remapping-based Fox projection/construction laws.
 - Deterministic naturality over finite remappings.
-- Deterministic Yoneda-sliding specialization for explicit broadcast families.
+- Concrete natural-reindexing Yoneda sliding over explicit `Reindexing` witnesses.
 - Explicit affine reindexing plus NumPy-backed execution for:
   - convolution with explicit window extraction
   - multi-head self-attention with explicit head splitting
@@ -46,6 +47,7 @@ A researcher package for independently rebuilding the Abbott bridge outside the 
 
 - This package does **not** claim the full general categorical theory of the paper.
 - The Fox/Yoneda layer here is a finite reference formalization, not the full abstract theorem family.
+- The natural-remapping branch is tied to concrete `Reindexing` witnesses built from `StrideMor.purePermutation`; it is not yet promoted to every possible broadcasted operation structure in the paper.
 - Torch execution is optional. When `torch` is absent, execution runs through the NumPy reference backend.
 - No attempt is made here to treat implicit backend broadcasting as the semantic source of truth.
 
@@ -83,6 +85,18 @@ The finite law layer currently exposes:
 - `FoundationalLaws.foxUniqueIdentification`
 - `FoundationalLaws.yonedaSliding_ofNatural`
 - `FoundationalLaws.yonedaSliding_ofDeterministic`
+- `FoundationalLaws.NaturalReindexing.rankCompatible`
+- `FoundationalLaws.NaturalReindexing.yonedaSliding`
+- `FoundationalLaws.NaturalReindexing.yonedaSliding_ofDeterministic`
+
+The remapping layer additionally exposes the Appendix A.2 finite constructions:
+
+- `FiniteRemapping.directSum`
+- `FiniteRemapping.joinSegments`
+- `FiniteRemapping.splitSegments`
+- `FiniteRemapping.directSumFamily`
+- `FiniteRemapping.pullSegmentSizes`
+- `FiniteRemapping.flatRemapping`
 
 ## Build and Verify
 

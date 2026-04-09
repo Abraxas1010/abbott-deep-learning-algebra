@@ -71,6 +71,44 @@ theorem yonedaSliding_ofDeterministic {dom cod : Nat} (μ : FiniteRemapping dom 
       (deterministicLiftFamily f).lift (remapTuple μ xs) :=
   (deterministicLiftFamily f).natural μ xs
 
+/--
+Concrete witness that a stride morphism in the array-broadcasted layer really is
+a natural remapping. This ties the abstract tuple law back to the repo's
+`Reindexing` and `StrideMor` structures.
+-/
+structure NaturalReindexing where
+  reindexing : Reindexing
+  remap : FiniteRemapping reindexing.dom.rank reindexing.cod.rank
+  stride_eq :
+    reindexing.stride =
+      StrideMor.purePermutation reindexing.dom.axes reindexing.cod.axes remap
+
+namespace NaturalReindexing
+
+def asTupleMap (η : NaturalReindexing) (xs : TensorTuple η.reindexing.dom.rank α) :
+    TensorTuple η.reindexing.cod.rank α :=
+  remapTuple η.remap xs
+
+theorem rankCompatible (η : NaturalReindexing) :
+    η.reindexing.stride.domRank = η.reindexing.dom.rank ∧
+      η.reindexing.stride.codRank = η.reindexing.cod.rank := by
+  constructor <;>
+    simp [η.stride_eq, StrideMor.domRank, StrideMor.codRank, StrideMor.purePermutation,
+      ArrayObject.rank, AxisProduct.rank]
+
+theorem yonedaSliding (η : NaturalReindexing) (family : NaturalBroadcastFamily α β)
+    (xs : TensorTuple η.reindexing.dom.rank α) :
+    η.asTupleMap (family.lift xs) = family.lift (η.asTupleMap xs) :=
+  family.natural η.remap xs
+
+theorem yonedaSliding_ofDeterministic (η : NaturalReindexing) (f : α → β)
+    (xs : TensorTuple η.reindexing.dom.rank α) :
+    η.asTupleMap ((deterministicLiftFamily f).lift xs) =
+      (deterministicLiftFamily f).lift (η.asTupleMap xs) :=
+  (deterministicLiftFamily f).natural η.remap xs
+
+end NaturalReindexing
+
 end FoundationalLaws
 
 end HeytingLean.Bridge.Abbott.DeepLearningAlgebra
