@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+title: Abbott Deep Learning Algebra
+message: If you use this repository, please cite the paper and this package.
+type: software
+license: Apoth3osis License Stack v1
+authors:
+  - family-names: Abbott
+    given-names: Vincent
+  - family-names: Zardini
+    given-names: Gioele
+repository-code: https://github.com/Abraxas1010/abbott-deep-learning-algebra
+abstract: >
+  Standalone Lean/Python/TypeScript researcher package for the finite formalization
+  and executable reference surfaces derived from "Weaves, Wires, and Morphisms:
+  Formalizing and Implementing the Algebra of Deep Learning".
