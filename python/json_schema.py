@@ -17,8 +17,8 @@ class ArrayObjectSchema:
 
 @dataclass(slots=True)
 class ReindexingSchema:
-    source_axes: list[int]
-    target_axes: list[int]
+    dom_axes: list[int]
+    cod_axes: list[int]
     linear: list[list[int]]
     offset: list[int]
 

@@ -47,8 +47,8 @@ def convolution_example() -> BroadcastedOperationSchema:
         uid_config=config,
         reindexings=[
             ReindexingSchema(
-                source_axes=[0, 1, 2],
-                target_axes=[0, 1, 2, 3],
+                dom_axes=[0, 1, 2],
+                cod_axes=[0, 1, 2, 3],
                 linear=[
                     [1, 0, 0, 0],
                     [0, 1, 0, 0],

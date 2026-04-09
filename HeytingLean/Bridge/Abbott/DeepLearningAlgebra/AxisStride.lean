@@ -29,8 +29,10 @@ end AxisProduct
 
 /--
 Finite affine stride morphism.
-`linear[row][col]` gives the coefficient of the `col`th source axis in the
-`row`th target axis, and `offset[row]` gives the constant shift.
+For a reindexing pullback `dom <- cod`, `linear[row][col]` gives the coefficient
+of the `col`th target axis in the `row`th source axis, and `offset[row]` gives
+the constant shift for the source axis. This matches Definition 8's affine
+matrix together with Definition 10's contravariant reindexing action.
 -/
 structure StrideMor where
   dom : AxisProduct
@@ -51,9 +53,9 @@ def rowCount (f : StrideMor) : Nat :=
   f.linear.size
 
 def wellShaped (f : StrideMor) : Bool :=
-  f.rowCount = f.codRank &&
-    f.linear.all (fun row => row.size = f.domRank) &&
-    f.offset.size = f.codRank
+  f.rowCount = f.domRank &&
+    f.linear.all (fun row => row.size = f.codRank) &&
+    f.offset.size = f.domRank
 
 def identity (p : AxisProduct) : StrideMor :=
   let mkRow := fun i =>
@@ -65,12 +67,12 @@ def identity (p : AxisProduct) : StrideMor :=
 
 def purePermutation (dom cod : AxisProduct) (perm : FiniteRemapping dom.rank cod.rank) : StrideMor :=
   let mkRow := fun i =>
-    Array.ofFn (fun j : Fin dom.rank =>
-      if perm.toFun i = j then (1 : Int) else 0)
+    Array.ofFn (fun j : Fin cod.rank =>
+      if perm.toFun j = i then (1 : Int) else 0)
   { dom := dom
     cod := cod
-    linear := Array.ofFn (fun i : Fin cod.rank => mkRow i)
-    offset := Array.replicate cod.rank 0 }
+    linear := Array.ofFn (fun i : Fin dom.rank => mkRow i)
+    offset := Array.replicate dom.rank 0 }
 
 end StrideMor
 

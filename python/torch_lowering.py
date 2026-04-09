@@ -25,7 +25,7 @@ class TorchLoweringPlan:
     weave_orders: dict[str, list[list[int]]]
     notes: list[str]
     steps: list[LoweringStep] = field(default_factory=list)
-    backend_preference: str = "torch"
+    backend_preference: str = "reference"
 
 
 def _axis_size_map(schema: BroadcastedOperationSchema) -> dict[int, int]:
@@ -47,7 +47,7 @@ def _default_steps(schema: BroadcastedOperationSchema) -> list[LoweringStep]:
             LoweringStep(
                 name="extract_windows",
                 details={
-                    "reindexing": schema.reindexings[0].target_axes if schema.reindexings else [],
+                    "reindexing": schema.reindexings[0].cod_axes if schema.reindexings else [],
                     "mode": schema.uid_config.op_params.get(11, "error"),
                 },
             ),
@@ -83,10 +83,11 @@ def lower_to_torch_plan(schema: BroadcastedOperationSchema) -> TorchLoweringPlan
     notes = [
         "Use explicit affine reindexing before contraction.",
         "Do not treat implicit backend broadcasting as the semantic source of truth.",
+        "Current execution is a NumPy reference path with optional torch tensor conversion.",
     ]
     return TorchLoweringPlan(
         op_name=schema.name,
-        explicit_broadcast_dims=[r.target_axes for r in schema.reindexings],
+        explicit_broadcast_dims=[r.cod_axes for r in schema.reindexings],
         weave_orders={
             "inputs": schema.input_weaves,
             "outputs": schema.output_weaves,
@@ -111,19 +112,19 @@ def _apply_affine_reindexing(
         _expected_shape(input_schema.axes),
     )
     axis_sizes = _axis_size_map(schema)
-    target_shape = tuple(axis_sizes[uid] for uid in reindexing.target_axes)
-    if len(reindexing.linear) != len(reindexing.source_axes):
-        raise ValueError("linear rows must match source axes")
-    if len(reindexing.offset) != len(reindexing.source_axes):
-        raise ValueError("offset rows must match source axes")
-    if any(len(row) != len(reindexing.target_axes) for row in reindexing.linear):
-        raise ValueError("each affine row must match target axis count")
+    cod_shape = tuple(axis_sizes[uid] for uid in reindexing.cod_axes)
+    if len(reindexing.linear) != len(reindexing.dom_axes):
+        raise ValueError("linear rows must match domain axes")
+    if len(reindexing.offset) != len(reindexing.dom_axes):
+        raise ValueError("offset rows must match domain axes")
+    if any(len(row) != len(reindexing.cod_axes) for row in reindexing.linear):
+        raise ValueError("each affine row must match codomain axis count")
 
-    result = np.empty(target_shape, dtype=tensor.dtype)
-    for target_index in np.ndindex(*target_shape):
+    result = np.empty(cod_shape, dtype=tensor.dtype)
+    for cod_index in np.ndindex(*cod_shape):
         source_coords_by_uid: dict[int, int] = {}
-        for uid, row, offset in zip(reindexing.source_axes, reindexing.linear, reindexing.offset):
-            coord = sum(coeff * target_index[col] for col, coeff in enumerate(row)) + offset
+        for uid, row, offset in zip(reindexing.dom_axes, reindexing.linear, reindexing.offset):
+            coord = sum(coeff * cod_index[col] for col, coeff in enumerate(row)) + offset
             size = axis_sizes[uid]
             if boundary == "wrap":
                 coord %= size
@@ -134,7 +135,7 @@ def _apply_affine_reindexing(
             source_coords_by_uid[uid] = coord
 
         ordered_index = tuple(source_coords_by_uid[axis.uid] for axis in input_schema.axes)
-        result[target_index] = tensor[ordered_index]
+        result[cod_index] = tensor[ordered_index]
     return result
 
 
@@ -237,16 +238,17 @@ def _torch_available() -> bool:
     return True
 
 
-def maybe_execute_torch(
+def execute_reference_backend(
     plan: TorchLoweringPlan,
     tensors: list[Any],
     schema: BroadcastedOperationSchema | None = None,
 ) -> dict[str, Any]:
     """
-    Execute the lowering plan.
+    Execute the explicit reference plan.
 
-    When PyTorch is unavailable, we execute the same explicit plan against NumPy so
-    the project still has a real backend for regression and artifact generation.
+    The authoritative runtime here is NumPy. When torch is available, we only
+    convert the verified NumPy result into a torch tensor so downstream callers
+    can inspect tensor-shaped artifacts without claiming native torch lowering.
     """
 
     if schema is None:
@@ -257,7 +259,7 @@ def maybe_execute_torch(
 
         numpy_result = execute_numpy(schema, tensors)
         return {
-            "backend": "torch-compatible",
+            "backend": "torch-tensorized-reference",
             "op_name": plan.op_name,
             "explicit_broadcast_dims": plan.explicit_broadcast_dims,
             "weave_orders": plan.weave_orders,
@@ -267,7 +269,7 @@ def maybe_execute_torch(
 
     numpy_result = execute_numpy(schema, tensors)
     return {
-        "backend": "numpy",
+        "backend": "numpy-reference",
         "op_name": plan.op_name,
         "explicit_broadcast_dims": plan.explicit_broadcast_dims,
         "weave_orders": plan.weave_orders,
@@ -275,3 +277,13 @@ def maybe_execute_torch(
         "intermediates": numpy_result.get("intermediates", {}),
         "notes": plan.notes + numpy_result.get("notes", []) + ["torch not installed; NumPy reference executor used"],
     }
+
+
+def maybe_execute_torch(
+    plan: TorchLoweringPlan,
+    tensors: list[Any],
+    schema: BroadcastedOperationSchema | None = None,
+) -> dict[str, Any]:
+    """Backward-compatible alias for the reference executor surface."""
+
+    return execute_reference_backend(plan, tensors, schema)

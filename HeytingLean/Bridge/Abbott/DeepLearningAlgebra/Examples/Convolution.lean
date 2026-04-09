@@ -35,12 +35,11 @@ def convolution : BroadcastedOperation :=
         dom := signalObject.axes
         cod := { axes := #[batchAxis, channelAxis, lengthAxis, kernelWidthAxis] }
         linear := #[
-          #[1, 0, 0],
-          #[0, 1, 0],
-          #[0, 0, 1],
-          #[0, 0, 0]
+          #[1, 0, 0, 0],
+          #[0, 1, 0, 0],
+          #[0, 0, 1, 1]
         ]
-        offset := #[0, 0, -1, 0]
+        offset := #[0, 0, -1]
       }
     }]
     inputWeaves := #[{

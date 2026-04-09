@@ -111,6 +111,88 @@ def flatRemapping {dom cod : Nat} (μ : FiniteRemapping dom cod) (sizes : Fin do
     let ⟨seg, off⟩ := splitSegments (pullSegmentSizes μ sizes) j
     joinSegments sizes (μ.toFun seg) off
 
+theorem split_join :
+    {n : Nat} -> (sizes : Fin n → Nat) -> (seg : Fin n) -> (off : Fin (sizes seg)) ->
+    splitSegments sizes (joinSegments sizes seg off) = ⟨seg, off⟩
+  | 0, _, seg, _ => nomatch seg
+  | n + 1, sizes, seg, off => by
+      cases seg using Fin.cases with
+      | zero =>
+          simp [joinSegments, splitSegments]
+      | succ segTail =>
+          have hnot : ¬ sizes 0 + ↑(joinSegments (fun i : Fin n => sizes i.succ) segTail off) < sizes 0 := by
+            exact Nat.not_lt_of_ge (Nat.le_add_right (sizes 0) _)
+          have hrec := split_join (fun i : Fin n => sizes i.succ) segTail off
+          have htailEq :
+              (⟨sizes 0 + ↑(joinSegments (fun i : Fin n => sizes i.succ) segTail off) - sizes 0,
+                by
+                  have hle : sizes 0 ≤ sizes 0 + ↑(joinSegments (fun i : Fin n => sizes i.succ) segTail off) :=
+                    Nat.le_add_right (sizes 0) _
+                  have hlt :
+                      sizes 0 + ↑(joinSegments (fun i : Fin n => sizes i.succ) segTail off) <
+                        segmentedArity (fun i : Fin n => sizes i.succ) + sizes 0 := by
+                    have hltLeft :=
+                      Nat.add_lt_add_left (joinSegments (fun i : Fin n => sizes i.succ) segTail off).2 (sizes 0)
+                    exact Nat.lt_of_lt_of_eq hltLeft (Nat.add_comm _ _)
+                  exact Nat.sub_lt_right_of_lt_add hle hlt⟩ :
+                Fin (segmentedArity (fun i : Fin n => sizes i.succ))) =
+              joinSegments (fun i : Fin n => sizes i.succ) segTail off := by
+            apply Fin.ext
+            simp [Nat.add_sub_cancel_left]
+          simp [joinSegments, splitSegments, hnot, Nat.add_sub_cancel_left]
+          constructor
+          · simp at hrec ⊢
+            exact congrArg Sigma.fst hrec
+          · rw [htailEq, hrec]
+
+theorem join_split :
+    {n : Nat} -> (sizes : Fin n → Nat) -> (j : Fin (segmentedArity sizes)) ->
+    joinSegments sizes (splitSegments sizes j).1 (splitSegments sizes j).2 = j
+  | 0, _, j => nomatch j
+  | n + 1, sizes, j => by
+      by_cases h : j.1 < sizes 0
+      · have hsplit : splitSegments sizes j = ⟨0, ⟨j.1, h⟩⟩ := by
+          simp [splitSegments, h]
+        rw [hsplit]
+        apply Fin.ext
+        simp [joinSegments]
+      · have hle : sizes 0 ≤ j.1 := Nat.le_of_not_lt h
+        let jTail : Fin (segmentedArity (fun i : Fin n => sizes i.succ)) :=
+          ⟨j.1 - sizes 0, by
+            have hlt0 : j.1 < sizes 0 + segmentedArity (fun i : Fin n => sizes i.succ) := j.2
+            have hlt : j.1 < segmentedArity (fun i : Fin n => sizes i.succ) + sizes 0 := by
+              exact Nat.lt_of_lt_of_eq hlt0 (Nat.add_comm _ _)
+            exact Nat.sub_lt_right_of_lt_add hle hlt⟩
+        have hsplit : splitSegments sizes j =
+            ⟨(splitSegments (fun i : Fin n => sizes i.succ) jTail).fst.succ,
+              (splitSegments (fun i : Fin n => sizes i.succ) jTail).snd⟩ := by
+          simp [splitSegments, h, jTail]
+        have hrec := join_split (fun i : Fin n => sizes i.succ) jTail
+        have hnatAdd := congrArg (Fin.natAdd (sizes 0)) hrec
+        rw [hsplit]
+        simpa [joinSegments, jTail, Nat.add_sub_of_le hle] using hnatAdd
+
+theorem directSumFamily_apply
+    {n : Nat} (domSizes codSizes : Fin n → Nat)
+    (components : (i : Fin n) → FiniteRemapping (domSizes i) (codSizes i))
+    (seg : Fin n) (off : Fin (codSizes seg)) :
+    (directSumFamily domSizes codSizes components).toFun (joinSegments codSizes seg off) =
+      joinSegments domSizes seg ((components seg).toFun off) := by
+  simpa [directSumFamily] using
+    congrArg
+      (fun p => joinSegments domSizes p.1 ((components p.1).toFun p.2))
+      (split_join codSizes seg off)
+
+theorem flatRemapping_join
+    {dom cod : Nat} (μ : FiniteRemapping dom cod) (sizes : Fin dom → Nat)
+    (seg : Fin cod) (off : Fin ((pullSegmentSizes μ sizes) seg)) :
+    (flatRemapping μ sizes).toFun (joinSegments (pullSegmentSizes μ sizes) seg off) =
+      joinSegments sizes (μ.toFun seg) off := by
+  simpa [flatRemapping] using
+    congrArg
+      (fun p => joinSegments sizes (μ.toFun p.1) p.2)
+      (split_join (pullSegmentSizes μ sizes) seg off)
+
 end FiniteRemapping
 
 /-- Flatten a family of segment sizes into a single arity count. -/

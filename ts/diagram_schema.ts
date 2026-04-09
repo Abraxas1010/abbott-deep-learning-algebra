@@ -18,8 +18,8 @@ export interface ArrayObjectSchema {
 }
 
 export interface ReindexingSchema {
-  source_axes: number[];
-  target_axes: number[];
+  dom_axes: number[];
+  cod_axes: number[];
   linear: number[][];
   offset: number[];
 }
