@@ -6,7 +6,9 @@ Morphisms: Formalizing and Implementing the Algebra of Deep Learning*.
 
 It includes the categorical bridge modules, categorical Fox/Yoneda theorem
 surfaces, and categorical example refinements, while retaining the finite witness
-layer as the specialization and executable regression surface.
+layer as the specialization and executable regression surface. It now also
+includes a concrete ONNX application slice showing how the Abbott semantics can
+act as a verified fragment-level checker for exported tensor graphs.
 
 ## What This Repository Contains
 
@@ -23,6 +25,11 @@ layer as the specialization and executable regression surface.
 - Python reference execution for:
   - convolution
   - self-attention
+- ONNX fragment verification example for:
+  - canonical 30-op fragment syntax and coverage
+  - lowering supported ONNX graphs into the Abbott-owned fragment IR
+  - rewrite/discrimination checks over the supported fragment
+  - ONNX Runtime output comparison and lowered-graph diffing
 - TypeScript schema mirrors for downstream UI and artifact inspection
 
 ## Repository Layout
@@ -33,6 +40,9 @@ layer as the specialization and executable regression surface.
   - Lean sanity and regression modules
 - `python/`
   - executable schema, lowering, and NumPy reference execution
+- `projects/onnx_abbott_verifier/`
+  - example downstream application of the Abbott semantics to ONNX lowering,
+    coverage, and ONNX Runtime parity checks
 - `ts/`
   - TypeScript schema mirror
 - `papers/`
@@ -60,6 +70,11 @@ layer as the specialization and executable regression surface.
 - concrete `NaturalReindexing` witnesses
 - finite broadcast-layer Yoneda witness in `Yoneda.lean`
 - NumPy-backed reference execution for convolution and attention
+- example ONNX application layer:
+  - canonical 30-op Abbott-owned ONNX fragment
+  - Lean shape/eval/rewrite surfaces for the fragment
+  - typed rejection for unsupported imported ops
+  - ORT-backed semantic report and lowered-graph diff checks
 
 ## Honest Boundaries
 
@@ -70,6 +85,8 @@ layer as the specialization and executable regression surface.
 - When `torch` is installed, results may be wrapped as torch tensors, but this
   repository does not yet claim native torch kernel execution.
 - Implicit backend broadcasting is not treated as the semantic source of truth.
+- The ONNX example layer is a high-value fragment verifier, not full ONNX
+  semantics. Current ledger: `24 supported`, `5 partial`, `1 unsupported`.
 
 ## Schema Convention
 
@@ -101,6 +118,9 @@ domain coordinates from codomain coordinates.
 - `HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Yoneda`
 - `HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Examples.Convolution`
 - `HeytingLean.Bridge.Abbott.DeepLearningAlgebra.Examples.Attention`
+- `HeytingLean.Bridge.Abbott.ONNX`
+- `HeytingLean.Bridge.Abbott.ONNX.Rewrite.Fusion`
+- `HeytingLean.Bridge.Abbott.ONNX.Coverage`
 
 ## Verification
 
@@ -139,6 +159,19 @@ print(json.dumps({
     "attn_shape": list(attn["result"].shape),
 }, sort_keys=True))
 PY
+```
+
+ONNX example application:
+
+```bash
+cd projects/onnx_abbott_verifier
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e . pytest
+pytest -q
+python -m py_compile python/*.py
+python3 python/coverage_ledger.py --out artifacts/coverage_matrix.json
 ```
 
 ## Provenance

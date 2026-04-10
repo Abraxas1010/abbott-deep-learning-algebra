@@ -1,0 +1,122 @@
+[
+  {
+    "op": "reshape",
+    "status": "supported"
+  },
+  {
+    "op": "transpose",
+    "status": "supported"
+  },
+  {
+    "op": "expand",
+    "status": "supported"
+  },
+  {
+    "op": "unsqueeze",
+    "status": "supported"
+  },
+  {
+    "op": "squeeze",
+    "status": "supported"
+  },
+  {
+    "op": "add",
+    "status": "supported"
+  },
+  {
+    "op": "mul",
+    "status": "supported"
+  },
+  {
+    "op": "matMul",
+    "status": "supported"
+  },
+  {
+    "op": "gemm",
+    "status": "supported"
+  },
+  {
+    "op": "conv",
+    "status": "supported"
+  },
+  {
+    "op": "attention",
+    "status": "partial"
+  },
+  {
+    "op": "flatten",
+    "status": "supported"
+  },
+  {
+    "op": "concat",
+    "status": "supported"
+  },
+  {
+    "op": "slice",
+    "status": "supported"
+  },
+  {
+    "op": "gather",
+    "status": "supported"
+  },
+  {
+    "op": "shape",
+    "status": "supported"
+  },
+  {
+    "op": "constantOfShape",
+    "status": "supported"
+  },
+  {
+    "op": "batchNormalization",
+    "status": "partial"
+  },
+  {
+    "op": "relu",
+    "status": "supported"
+  },
+  {
+    "op": "clip",
+    "status": "partial"
+  },
+  {
+    "op": "softmax",
+    "status": "supported"
+  },
+  {
+    "op": "reduceSum",
+    "status": "supported"
+  },
+  {
+    "op": "reduceMean",
+    "status": "partial"
+  },
+  {
+    "op": "maxPool",
+    "status": "supported"
+  },
+  {
+    "op": "averagePool",
+    "status": "supported"
+  },
+  {
+    "op": "where",
+    "status": "supported"
+  },
+  {
+    "op": "identity",
+    "status": "supported"
+  },
+  {
+    "op": "cast",
+    "status": "supported"
+  },
+  {
+    "op": "pad",
+    "status": "partial"
+  },
+  {
+    "op": "resize",
+    "status": "unsupported"
+  }
+]
