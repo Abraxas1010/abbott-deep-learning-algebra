@@ -2,3 +2,7 @@
 /build/
 __pycache__/
 *.pyc
+*.egg-info/
+.venv/
+projects/onnx_abbott_verifier/.venv/
+projects/onnx_abbott_verifier/onnx_abbott_verifier.egg-info/
